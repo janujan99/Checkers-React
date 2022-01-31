@@ -191,7 +191,15 @@ export function Board() {
   }
 
   function displayMoves(moves: number[][]) {
-    let tempBoard: (string | null)[][] = displayBoard;
+    let tempBoard: (string | null)[][] = [];
+
+    for (let i = 0; i < 8; i++) {
+      let temp = [];
+      for (let j = 0; j < 8; j++) {
+        temp.push(displayBoard[i][j]);
+      }
+      tempBoard.push(temp);
+    }
     // clear board of existing moves that are displayed
     for (let i = 0; i < 8; i++) {
       for (let j = 0; j < 8; j++) {
@@ -206,6 +214,7 @@ export function Board() {
     console.log(tempBoard);
   }
 
+  console.log("Render!");
   let bigboard = [];
   for (let i = 0; i < 8; i++) {
     let temp = [];
