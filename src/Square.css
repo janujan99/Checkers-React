@@ -1,0 +1,11 @@
+.square {
+  color: green;
+  font: normal normal normal 16px/1.4 Georgia;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border: 1px solid black;
+  width: 80px;
+  height: 80px;
+  padding: 0px;
+}
