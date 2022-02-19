@@ -1,11 +1,16 @@
 "use strict";
 exports.__esModule = true;
-exports.getNonCaptureMoves = exports.isValidCoordinate = exports.Colour = exports.Turn = void 0;
+exports.getNonCaptureMoves = exports.isValidCoordinate = exports.Colour = exports.TurnType = exports.Turn = void 0;
 var Turn;
 (function (Turn) {
     Turn[Turn["RedTurn"] = 1] = "RedTurn";
     Turn[Turn["BlackTurn"] = 2] = "BlackTurn";
 })(Turn = exports.Turn || (exports.Turn = {}));
+var TurnType;
+(function (TurnType) {
+    TurnType[TurnType["Continue"] = 1] = "Continue";
+    TurnType[TurnType["Next"] = 2] = "Next";
+})(TurnType = exports.TurnType || (exports.TurnType = {}));
 var Colour;
 (function (Colour) {
     Colour[Colour["Red"] = 1] = "Red";
@@ -99,12 +104,23 @@ function makeMove(initial, final, prevState) {
         newChecker.hasPromoted = true;
     tempGrid[initial.y][initial.x] = null;
     tempGrid[final.y][final.x] = newChecker;
-    if (Math.abs(initial.x - final.x) == 2)
+    var captureMade = false;
+    if (Math.abs(initial.x - final.x) == 2) {
+        captureMade = true;
         tempGrid[(initial.y + final.y) / 2][(initial.x + final.x) / 2] = null;
+    }
+    var nextTurnType = captureMade &&
+        getCaptureMoves(tempGrid[final.y][final.x], { grid: tempGrid }).length > 0
+        ? TurnType.Continue
+        : TurnType.Next;
+    var otherTurn = prevState.turn === Turn.RedTurn ? Turn.BlackTurn : Turn.RedTurn;
+    var nextTurn = nextTurnType === TurnType.Continue ? prevState.turn : otherTurn;
     return {
         board: { grid: tempGrid },
-        turn: prevState.turn,
-        gameOver: prevState.gameOver
+        turn: nextTurn,
+        turnType: nextTurnType,
+        gameOver: prevState.gameOver,
+        currentPieceLocation: final
     };
 }
 function printBoard(board) {
@@ -192,7 +208,13 @@ function newState() {
             ],
         ]
     };
-    return { board: board, turn: Turn.RedTurn, gameOver: false };
+    return {
+        board: board,
+        turn: Turn.RedTurn,
+        turnType: TurnType.Next,
+        gameOver: false,
+        currentPieceLocation: { x: -1, y: -1 }
+    };
 }
 function gameOver(gameState) {
     var colour = gameState.turn === Turn.RedTurn ? Colour.Black : Colour.Red;
@@ -220,44 +242,42 @@ function isValidPiece(pieceX, pieceY, gameState) {
 function main() {
     var state = newState();
     var prompt_sync = require("prompt-sync")();
-    while (!state.gameOver) {
+    while (!gameOver(state)) {
         printBoard(state.board);
         console.log(state.turn === Turn.RedTurn ? "Red's turn" : "Black's Turn");
-        var validPiece = false;
-        var inputX = -1;
-        var inputY = -1;
-        while (!validPiece) {
-            inputX = parseInt(prompt_sync("Enter column of piece: "));
-            inputY = parseInt(prompt_sync("Enter row of piece: "));
-            if (isValidPiece(inputX, inputY, state))
-                validPiece = true;
-            else
-                console.log("Invalid piece location. Try again");
+        // Next turn
+        if (state.turnType === TurnType.Next) {
+            var validPiece = false;
+            var inputX = -1;
+            var inputY = -1;
+            while (!validPiece) {
+                inputX = parseInt(prompt_sync("Enter column of piece: "));
+                inputY = parseInt(prompt_sync("Enter row of piece: "));
+                if (isValidPiece(inputX, inputY, state))
+                    validPiece = true;
+                else
+                    console.log("Invalid piece location. Try again");
+            }
+            var captureMoves = getCaptureMoves(state.board.grid[inputY][inputX], state.board);
+            var nonCaptureMoves = getNonCaptureMoves(state.board.grid[inputY][inputX], state.board);
+            var allMoves = captureMoves.concat(nonCaptureMoves);
+            var validMove = false;
+            var moveIndex = -1;
+            console.log(allMoves);
+            while (!validMove) {
+                moveIndex = parseInt(prompt_sync("Enter index in moves array: "));
+                if (moveIndex >= 0 && moveIndex < allMoves.length)
+                    validMove = true;
+                else
+                    console.log("Invalid move index. Try again.");
+            }
+            // assume state is immutable and reassign state as needed
+            var newState_1 = makeMove({ x: inputX, y: inputY }, { x: allMoves[moveIndex].x, y: allMoves[moveIndex].y }, state);
+            state = newState_1;
         }
-        var captureMoves = getCaptureMoves(state.board.grid[inputY][inputX], state.board);
-        var nonCaptureMoves = getNonCaptureMoves(state.board.grid[inputY][inputX], state.board);
-        var allMoves = captureMoves.concat(nonCaptureMoves);
-        var validMove = false;
-        var moveIndex = -1;
-        console.log(allMoves);
-        while (!validMove) {
-            moveIndex = parseInt(prompt_sync("Enter index in moves array: "));
-            if (moveIndex >= 0 && moveIndex < allMoves.length)
-                validMove = true;
-            else
-                console.log("Invalid move index. Try again.");
-        }
-        // assume state is immutable and reassign state as needed
-        var newState_1 = makeMove({ x: inputX, y: inputY }, { x: allMoves[moveIndex].x, y: allMoves[moveIndex].y }, state);
-        state = newState_1;
-        var keepMoving = false;
-        var pieceLocation = allMoves[moveIndex];
-        if (captureMoves.includes(pieceLocation))
-            keepMoving = true;
-        while (keepMoving &&
-            getCaptureMoves(state.board.grid[pieceLocation.y][pieceLocation.x], state.board).length > 0) {
-            printBoard(state.board);
-            captureMoves = getCaptureMoves(state.board.grid[pieceLocation.y][pieceLocation.x], state.board);
+        // Next turn
+        else {
+            var captureMoves = getCaptureMoves(state.board.grid[state.currentPieceLocation.y][state.currentPieceLocation.x], state.board);
             var validCapture = false;
             var captureIndex = -1;
             console.log(captureMoves);
@@ -268,15 +288,9 @@ function main() {
                 else
                     console.log("Invalid move index. Try again.");
             }
-            newState_1 = makeMove({ x: pieceLocation.x, y: pieceLocation.y }, { x: captureMoves[captureIndex].x, y: captureMoves[captureIndex].y }, state);
-            state = newState_1;
-            pieceLocation = captureMoves[captureIndex];
+            var newState_2 = makeMove({ x: state.currentPieceLocation.x, y: state.currentPieceLocation.y }, { x: captureMoves[captureIndex].x, y: captureMoves[captureIndex].y }, state);
+            state = newState_2;
         }
-        var gameStatus = gameOver(state);
-        console.log(gameStatus);
-        var nextTurn = state.turn === Turn.RedTurn ? Turn.BlackTurn : Turn.RedTurn;
-        newState_1 = { board: state.board, turn: nextTurn, gameOver: gameStatus };
-        state = newState_1;
     }
     if (state.turn === Turn.RedTurn)
         console.log("Black wins! ");

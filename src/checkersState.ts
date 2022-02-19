@@ -2,7 +2,9 @@ export {};
 export interface CheckersState {
   board: Board;
   turn: Turn;
+  turnType: TurnType;
   gameOver: boolean;
+  currentPieceLocation: Position;
 }
 
 export interface Position {
@@ -13,6 +15,11 @@ export interface Position {
 export enum Turn {
   RedTurn = 1,
   BlackTurn = 2,
+}
+
+export enum TurnType {
+  Continue = 1,
+  Next = 2,
 }
 
 export enum Colour {
@@ -144,14 +151,29 @@ function makeMove(
 
   tempGrid[initial.y][initial.x] = null;
   tempGrid[final.y][final.x] = newChecker;
+  let captureMade: boolean = false;
 
-  if (Math.abs(initial.x - final.x) == 2)
+  if (Math.abs(initial.x - final.x) == 2) {
+    captureMade = true;
     tempGrid[(initial.y + final.y) / 2][(initial.x + final.x) / 2] = null;
+  }
+
+  let nextTurnType: TurnType =
+    captureMade &&
+    getCaptureMoves(tempGrid[final.y][final.x]!, { grid: tempGrid }).length > 0
+      ? TurnType.Continue
+      : TurnType.Next;
+  let otherTurn: Turn =
+    prevState.turn === Turn.RedTurn ? Turn.BlackTurn : Turn.RedTurn;
+  let nextTurn: Turn =
+    nextTurnType === TurnType.Continue ? prevState.turn : otherTurn;
 
   return {
     board: { grid: tempGrid },
-    turn: prevState.turn,
+    turn: nextTurn,
+    turnType: nextTurnType,
     gameOver: prevState.gameOver,
+    currentPieceLocation: final,
   };
 }
 
@@ -239,7 +261,13 @@ function newState(): CheckersState {
       ],
     ],
   };
-  return { board: board, turn: Turn.RedTurn, gameOver: false };
+  return {
+    board: board,
+    turn: Turn.RedTurn,
+    turnType: TurnType.Next,
+    gameOver: false,
+    currentPieceLocation: { x: -1, y: -1 },
+  };
 }
 
 function gameOver(gameState: CheckersState): boolean {
@@ -287,64 +315,58 @@ function main() {
   let state: CheckersState = newState();
   var prompt_sync = require("prompt-sync")();
 
-  while (!state.gameOver) {
+  while (!gameOver(state)) {
     printBoard(state.board);
     console.log(state.turn === Turn.RedTurn ? "Red's turn" : "Black's Turn");
-    let validPiece: boolean = false;
-    let inputX: number = -1;
-    let inputY: number = -1;
 
-    while (!validPiece) {
-      inputX = parseInt(prompt_sync("Enter column of piece: "));
-      inputY = parseInt(prompt_sync("Enter row of piece: "));
-      if (isValidPiece(inputX, inputY, state)) validPiece = true;
-      else console.log("Invalid piece location. Try again");
-    }
+    // Next turn
+    if (state.turnType === TurnType.Next) {
+      let validPiece: boolean = false;
+      let inputX: number = -1;
+      let inputY: number = -1;
 
-    let captureMoves: Position[] = getCaptureMoves(
-      state.board.grid[inputY][inputX]!,
-      state.board
-    );
-    let nonCaptureMoves: Position[] = getNonCaptureMoves(
-      state.board.grid[inputY][inputX]!,
-      state.board
-    );
-    let allMoves: Position[] = captureMoves.concat(nonCaptureMoves);
-    let validMove: boolean = false;
-    let moveIndex: number = -1;
+      while (!validPiece) {
+        inputX = parseInt(prompt_sync("Enter column of piece: "));
+        inputY = parseInt(prompt_sync("Enter row of piece: "));
+        if (isValidPiece(inputX, inputY, state)) validPiece = true;
+        else console.log("Invalid piece location. Try again");
+      }
 
-    console.log(allMoves);
-
-    while (!validMove) {
-      moveIndex = parseInt(prompt_sync("Enter index in moves array: ")!);
-      if (moveIndex >= 0 && moveIndex < allMoves.length) validMove = true;
-      else console.log("Invalid move index. Try again.");
-    }
-
-    // assume state is immutable and reassign state as needed
-    let newState = makeMove(
-      { x: inputX, y: inputY },
-      { x: allMoves[moveIndex].x, y: allMoves[moveIndex].y },
-      state
-    );
-
-    state = newState;
-
-    let keepMoving: boolean = false;
-    let pieceLocation: Position = allMoves[moveIndex];
-
-    if (captureMoves.includes(pieceLocation)) keepMoving = true;
-
-    while (
-      keepMoving &&
-      getCaptureMoves(
-        state.board.grid[pieceLocation.y][pieceLocation.x]!,
+      let captureMoves: Position[] = getCaptureMoves(
+        state.board.grid[inputY][inputX]!,
         state.board
-      ).length > 0
-    ) {
-      printBoard(state.board);
-      captureMoves = getCaptureMoves(
-        state.board.grid[pieceLocation.y][pieceLocation.x]!,
+      );
+      let nonCaptureMoves: Position[] = getNonCaptureMoves(
+        state.board.grid[inputY][inputX]!,
+        state.board
+      );
+      let allMoves: Position[] = captureMoves.concat(nonCaptureMoves);
+      let validMove: boolean = false;
+      let moveIndex: number = -1;
+
+      console.log(allMoves);
+
+      while (!validMove) {
+        moveIndex = parseInt(prompt_sync("Enter index in moves array: ")!);
+        if (moveIndex >= 0 && moveIndex < allMoves.length) validMove = true;
+        else console.log("Invalid move index. Try again.");
+      }
+
+      // assume state is immutable and reassign state as needed
+      let newState: CheckersState = makeMove(
+        { x: inputX, y: inputY },
+        { x: allMoves[moveIndex].x, y: allMoves[moveIndex].y },
+        state
+      );
+
+      state = newState;
+    }
+    // Next turn
+    else {
+      let captureMoves: Position[] = getCaptureMoves(
+        state.board.grid[state.currentPieceLocation.y][
+          state.currentPieceLocation.x
+        ]!,
         state.board
       );
       let validCapture: boolean = false;
@@ -359,25 +381,13 @@ function main() {
           validCapture = true;
         else console.log("Invalid move index. Try again.");
       }
-
-      newState = makeMove(
-        { x: pieceLocation.x, y: pieceLocation.y },
+      let newState: CheckersState = makeMove(
+        { x: state.currentPieceLocation.x, y: state.currentPieceLocation.y },
         { x: captureMoves[captureIndex].x, y: captureMoves[captureIndex].y },
         state
       );
       state = newState;
-
-      pieceLocation = captureMoves[captureIndex];
     }
-
-    let gameStatus: boolean = gameOver(state);
-    console.log(gameStatus);
-
-    let nextTurn: Turn =
-      state.turn === Turn.RedTurn ? Turn.BlackTurn : Turn.RedTurn;
-
-    newState = { board: state.board, turn: nextTurn, gameOver: gameStatus };
-    state = newState;
   }
 
   if (state.turn === Turn.RedTurn) console.log("Black wins! ");
