@@ -1,4 +1,3 @@
-export {};
 export interface CheckersState {
   board: Board;
   turn: Turn;
@@ -72,7 +71,7 @@ export function getNonCaptureMoves(piece: Checker, board: Board): Position[] {
   return filteredMoves;
 }
 
-function getCaptureMoves(piece: Checker, board: Board): Position[] {
+export function getCaptureMoves(piece: Checker, board: Board): Position[] {
   let moves: Position[];
   let directionFactor: number = piece.colour === Colour.Red ? -1 : 1;
 
@@ -108,7 +107,7 @@ function getCaptureMoves(piece: Checker, board: Board): Position[] {
   return filteredMoves;
 }
 
-function makeMove(
+export function makeMove(
   initial: Position,
   final: Position,
   prevState: CheckersState
@@ -194,7 +193,7 @@ function printBoard(board: Board) {
   }
 }
 
-function newState(): CheckersState {
+export function newState(): CheckersState {
   let board: Board = {
     grid: [
       [
@@ -270,7 +269,7 @@ function newState(): CheckersState {
   };
 }
 
-function gameOver(gameState: CheckersState): boolean {
+export function gameOver(gameState: CheckersState): boolean {
   let colour: Colour =
     gameState.turn === Turn.RedTurn ? Colour.Black : Colour.Red;
   // check if the other player has any moves left to make or has any pieces left
@@ -290,7 +289,7 @@ function gameOver(gameState: CheckersState): boolean {
   return true;
 }
 
-function isValidPiece(
+export function isValidPiece(
   pieceX: number,
   pieceY: number,
   gameState: CheckersState
@@ -311,7 +310,7 @@ function isValidPiece(
   );
 }
 
-function main() {
+/*function main() {
   let state: CheckersState = newState();
   var prompt_sync = require("prompt-sync")();
 
@@ -395,3 +394,4 @@ function main() {
 }
 
 main();
+*/
