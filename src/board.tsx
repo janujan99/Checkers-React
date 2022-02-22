@@ -20,7 +20,7 @@ import {
 
 function Square(props: any) {
   return (
-    <div className="square" onClick={props.onClick}>
+    <div className={props.name} onClick={props.onClick}>
       {props.ch}
     </div>
   );
@@ -86,8 +86,6 @@ export function CheckerBoard() {
       });
     }
   }
-  console.log("Render!");
-  console.log(checkersState);
   let bigboard = [];
   for (let i = 0; i < 8; i++) {
     let temp = [];
@@ -105,8 +103,10 @@ export function CheckerBoard() {
         )
           chr = ".";
       }
+      let name: string = (i + j) % 2 === 0 ? "square even " : "square odd";
       temp.push(
         <Square
+          name={name}
           key={String(i) + String(j)}
           ch={chr}
           onClick={() => getNewCheckersState(i, j)}
