@@ -14,10 +14,11 @@ import {
   getCaptureMoves,
   getNonCaptureMoves,
   makeMove,
+  gameOver,
 } from "./checkersState";
 
 function Square(props: any) {
-  let n: string = "null-crown";
+  let n: string = "";
   let crown_char: string = "";
   if (props.ch === null) n = "null_circle";
   else {
@@ -48,7 +49,15 @@ export function CheckerBoard() {
     currentMovesDisplayed: [{ x: -1, y: -1 }],
   });
 
-  function getNewCheckersState(i: number, j: number) {
+  function getNewCheckersState(i: number, j: number, reset: boolean = false) {
+    if (reset) {
+      setCheckersState({
+        gameState: newState(),
+        currentPieceClicked: { x: -1, y: -1 },
+        currentMovesDisplayed: [{ x: -1, y: -1 }],
+      });
+      return;
+    }
     let board: Board = checkersState.gameState.board;
     let turn: Turn = checkersState.gameState.turn;
     let square: Checker | null = board.grid[i][j];
@@ -135,5 +144,23 @@ export function CheckerBoard() {
       </div>
     );
   }
-  return <div className="bigboard">{bigboard}</div>;
+  let titleText: string = "CHECKERS";
+  console.log(gameOver(checkersState.gameState));
+  if (gameOver(checkersState.gameState)) {
+    titleText =
+      checkersState.gameState.turn === Turn.RedTurn
+        ? "Black wins!"
+        : "Red wins!";
+  }
+  return (
+    <div>
+      <div className="title">{titleText}</div>
+      <div className="bigboard">{bigboard}</div>
+      <div className="button-container">
+        <button onClick={() => getNewCheckersState(-1, -1, true)}>
+          New Game
+        </button>
+      </div>
+    </div>
+  );
 }

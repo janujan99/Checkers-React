@@ -6,10 +6,25 @@
   border: 5px solid #daa520;
   border-image: url("https://cdn.shopify.com/s/files/1/2123/8425/products/25999303-LRG_b5f2ac6c-a9c1-4573-9cf8-9320fcc6ff80_530x.jpg?v=1580392522")
     30 round;
-  border-color: #daa520;
 }
 .row {
   display: flex;
   flex-direction: row;
+  justify-content: center;
+}
+.button-container {
+  margin-top: 30px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.title {
+  color: white;
+  font-family: "Jumble", sans-serif;
+  font-weight: 400;
+  font-size: 90px;
+  margin-bottom: 40px;
+  margin-top: 1px;
+  display: flex;
   justify-content: center;
 }

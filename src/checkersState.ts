@@ -2,7 +2,6 @@ export interface CheckersState {
   board: Board;
   turn: Turn;
   turnType: TurnType;
-  gameOver: boolean;
   currentPieceLocation: Position;
 }
 
@@ -171,7 +170,6 @@ export function makeMove(
     board: { grid: tempGrid },
     turn: nextTurn,
     turnType: nextTurnType,
-    gameOver: prevState.gameOver,
     currentPieceLocation: final,
   };
 }
@@ -247,14 +245,13 @@ export function newState(): CheckersState {
     board: board,
     turn: Turn.RedTurn,
     turnType: TurnType.Next,
-    gameOver: false,
     currentPieceLocation: { x: -1, y: -1 },
   };
 }
 
 export function gameOver(gameState: CheckersState): boolean {
   let colour: Colour =
-    gameState.turn === Turn.RedTurn ? Colour.Black : Colour.Red;
+    gameState.turn === Turn.RedTurn ? Colour.Red : Colour.Black;
   // check if the other player has any moves left to make or has any pieces left
   for (let i = 0; i < 8; i++) {
     for (let j = 0; j < 8; j++) {
@@ -265,8 +262,9 @@ export function gameOver(gameState: CheckersState): boolean {
         getCaptureMoves(square!, gameState.board).concat(
           getNonCaptureMoves(square!, gameState.board)
         ).length > 0
-      )
+      ) {
         return false;
+      }
     }
   }
   return true;
