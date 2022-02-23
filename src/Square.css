@@ -1,5 +1,4 @@
 .square {
-  color: white;
   font: normal normal normal 16px/1.4 Georgia;
   display: flex;
   justify-content: center;
@@ -23,9 +22,8 @@ div.red_circle {
   display: flex;
   justify-content: center;
   background: rgb(135, 40, 40);
+  border: 2px solid black;
   border-radius: 100%;
-  border-color: black;
-  border: 5px;
   height: 90%;
   width: 90%;
 }
@@ -33,8 +31,8 @@ div.black_circle {
   display: flex;
   justify-content: center;
   background: black;
+  border: 2px solid rgb(172, 171, 171);
   border-radius: 100%;
-  border-color: black;
   height: 90%;
   width: 90%;
 }
@@ -46,4 +44,79 @@ div.move_circle {
   border-color: black;
   height: 20%;
   width: 20%;
+}
+.white-crown {
+  box-sizing: border-box;
+  position: relative;
+  display: block;
+  transform: scale(var(--ggs, 1));
+  width: 19px;
+  height: 12px;
+  border: 2px solid white;
+  border-top-color: transparent;
+  border-bottom-right-radius: 3px;
+  border-bottom-left-radius: 3px;
+  padding-top: 4px;
+}
+.white-crown::after,
+.white-crown::before {
+  content: "";
+  display: flex;
+  position: absolute;
+  box-sizing: border-box;
+  width: 8px;
+  height: 8px;
+  border-bottom: 2px solid white;
+  border-left: 2px solid white;
+  transform: rotate(-45deg);
+  top: -4px;
+}
+.white-crown::before {
+  border-top-left-radius: 2px solid white;
+  left: -1px;
+}
+.white-crown::after {
+  border-bottom-right-radius: 2px solid white;
+  right: -1px;
+}
+.black-crown {
+  box-sizing: border-box;
+  position: relative;
+  display: block;
+  transform: scale(var(--ggs, 1));
+  width: 19px;
+  height: 12px;
+  border: 2px solid black;
+  border-top-color: transparent;
+  border-bottom-right-radius: 3px;
+  border-bottom-left-radius: 3px;
+  padding-top: 4px;
+}
+.black-crown::after,
+.black-crown::before {
+  content: "";
+  display: flex;
+  position: absolute;
+  box-sizing: border-box;
+  width: 8px;
+  height: 8px;
+  border-bottom: 2px solid black;
+  border-left: 2px solid black;
+  transform: rotate(-45deg);
+  top: -4px;
+}
+.black-crown::before {
+  border-top-left-radius: 2px solid black;
+  left: -1px;
+}
+.black-crown::after {
+  border-bottom-right-radius: 2px solid black;
+  right: -1px;
+}
+.crown-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 100%;
 }

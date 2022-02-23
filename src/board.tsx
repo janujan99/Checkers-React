@@ -17,17 +17,25 @@ import {
 } from "./checkersState";
 
 function Square(props: any) {
-  let n: string = "";
+  let n: string = "null-crown";
+  let crown_char: string = "";
   if (props.ch === null) n = "null_circle";
   else {
     if (props.ch === ".") n = "move_circle";
-    else if (props.ch.toLowerCase() === "r") n = "red_circle";
-    else n = "black_circle";
+    else if (props.ch.toLowerCase() === "r") {
+      n = "red_circle";
+      if (props.ch === props.ch.toUpperCase()) crown_char = "black-crown";
+    } else {
+      n = "black_circle";
+      if (props.ch === props.ch.toUpperCase()) crown_char = "white-crown";
+    }
   }
   return (
     <div className={props.name} onClick={props.onClick}>
       <div className={n}>
-        <i className="fas fa-crown"></i>
+        <div className="crown-container">
+          <div className={crown_char}></div>
+        </div>
       </div>
     </div>
   );
