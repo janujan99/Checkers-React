@@ -152,7 +152,7 @@ export function makeMove(
   tempGrid[final.y][final.x] = newChecker;
   let captureMade: boolean = false;
 
-  if (Math.abs(initial.x - final.x) == 2) {
+  if (Math.abs(initial.x - final.x) === 2) {
     captureMade = true;
     tempGrid[(initial.y + final.y) / 2][(initial.x + final.x) / 2] = null;
   }
@@ -174,23 +174,6 @@ export function makeMove(
     gameOver: prevState.gameOver,
     currentPieceLocation: final,
   };
-}
-
-function printBoard(board: Board) {
-  for (let i = 0; i < 8; i++) {
-    let st: string = "";
-
-    for (let j = 0; j < 8; j++) {
-      let ch: string;
-      if (board.grid[i][j] == null) st += " -";
-      else {
-        let ch: string = board.grid[i][j]!.colour === Colour.Red ? "r" : "b";
-        if (board.grid[i][j]?.hasPromoted) ch = ch.toUpperCase();
-        st = st + " " + ch;
-      }
-    }
-    console.log(st);
-  }
 }
 
 export function newState(): CheckersState {
@@ -309,89 +292,3 @@ export function isValidPiece(
     ).length > 0
   );
 }
-
-/*function main() {
-  let state: CheckersState = newState();
-  var prompt_sync = require("prompt-sync")();
-
-  while (!gameOver(state)) {
-    printBoard(state.board);
-    console.log(state.turn === Turn.RedTurn ? "Red's turn" : "Black's Turn");
-
-    // Next turn
-    if (state.turnType === TurnType.Next) {
-      let validPiece: boolean = false;
-      let inputX: number = -1;
-      let inputY: number = -1;
-
-      while (!validPiece) {
-        inputX = parseInt(prompt_sync("Enter column of piece: "));
-        inputY = parseInt(prompt_sync("Enter row of piece: "));
-        if (isValidPiece(inputX, inputY, state)) validPiece = true;
-        else console.log("Invalid piece location. Try again");
-      }
-
-      let captureMoves: Position[] = getCaptureMoves(
-        state.board.grid[inputY][inputX]!,
-        state.board
-      );
-      let nonCaptureMoves: Position[] = getNonCaptureMoves(
-        state.board.grid[inputY][inputX]!,
-        state.board
-      );
-      let allMoves: Position[] = captureMoves.concat(nonCaptureMoves);
-      let validMove: boolean = false;
-      let moveIndex: number = -1;
-
-      console.log(allMoves);
-
-      while (!validMove) {
-        moveIndex = parseInt(prompt_sync("Enter index in moves array: ")!);
-        if (moveIndex >= 0 && moveIndex < allMoves.length) validMove = true;
-        else console.log("Invalid move index. Try again.");
-      }
-
-      // assume state is immutable and reassign state as needed
-      let newState: CheckersState = makeMove(
-        { x: inputX, y: inputY },
-        { x: allMoves[moveIndex].x, y: allMoves[moveIndex].y },
-        state
-      );
-
-      state = newState;
-    }
-    // Next turn
-    else {
-      let captureMoves: Position[] = getCaptureMoves(
-        state.board.grid[state.currentPieceLocation.y][
-          state.currentPieceLocation.x
-        ]!,
-        state.board
-      );
-      let validCapture: boolean = false;
-      let captureIndex: number = -1;
-
-      console.log(captureMoves);
-      while (!validCapture) {
-        captureIndex = parseInt(
-          prompt_sync("Enter index in capture moves array: ")
-        );
-        if (captureIndex >= 0 && captureIndex < captureMoves.length)
-          validCapture = true;
-        else console.log("Invalid move index. Try again.");
-      }
-      let newState: CheckersState = makeMove(
-        { x: state.currentPieceLocation.x, y: state.currentPieceLocation.y },
-        { x: captureMoves[captureIndex].x, y: captureMoves[captureIndex].y },
-        state
-      );
-      state = newState;
-    }
-  }
-
-  if (state.turn === Turn.RedTurn) console.log("Black wins! ");
-  else console.log("Red wins! ");
-}
-
-main();
-*/

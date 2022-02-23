@@ -11,17 +11,24 @@ import {
   Checker,
   newState,
   CheckersState,
-  isValidCoordinate,
-  isValidPiece,
   getCaptureMoves,
   getNonCaptureMoves,
   makeMove,
 } from "./checkersState";
 
 function Square(props: any) {
+  let n: string = "";
+  if (props.ch === null) n = "null_circle";
+  else {
+    if (props.ch === ".") n = "move_circle";
+    else if (props.ch.toLowerCase() === "r") n = "red_circle";
+    else n = "black_circle";
+  }
   return (
     <div className={props.name} onClick={props.onClick}>
-      {props.ch}
+      <div className={n}>
+        <i className="fas fa-crown"></i>
+      </div>
     </div>
   );
 }
@@ -86,6 +93,7 @@ export function CheckerBoard() {
       });
     }
   }
+
   let bigboard = [];
   for (let i = 0; i < 8; i++) {
     let temp = [];
@@ -103,7 +111,7 @@ export function CheckerBoard() {
         )
           chr = ".";
       }
-      let name: string = (i + j) % 2 === 0 ? "square even " : "square odd";
+      let name: string = (i + j) % 2 === 0 ? "square even" : "square odd";
       temp.push(
         <Square
           name={name}
