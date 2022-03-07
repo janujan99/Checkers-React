@@ -153,7 +153,7 @@ export function CheckerBoard() {
         : "Red wins!";
   }
   return (
-    <div>
+    <div className="bigboard-container">
       <div className="title">{titleText}</div>
       <div className="bigboard">{bigboard}</div>
       <div className="button-container">
