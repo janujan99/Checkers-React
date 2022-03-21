@@ -144,7 +144,7 @@ export function CheckerBoard() {
       </div>
     );
   }
-  let titleText: string = "CHECKERS";
+  let titleText: string = "";
   console.log(gameOver(checkersState.gameState));
   if (gameOver(checkersState.gameState)) {
     titleText =

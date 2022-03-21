@@ -1,6 +1,6 @@
 .bigboard {
   display: flex;
-  width: 100%;
+  width: fit-content;
   height: 100%;
   flex-direction: column;
   justify-content: center;
@@ -11,8 +11,8 @@
 }
 .bigboard-container {
   display: flex;
+  flex-direction: column;
   width: 90%;
-  padding-bottom: 90%;
 }
 .row {
   display: flex;
@@ -22,7 +22,7 @@
   height: 100%;
 }
 .button-container {
-  margin-top: 30%;
+  margin-top: 1%;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -31,13 +31,12 @@
   color: white;
   font-family: "Jumble", sans-serif;
   font-weight: 400;
-  font-size: 200%;
+  font-size: 300%;
   margin-bottom: 40px;
-  margin-top: 1px;
+  margin-top: 5px;
   display: flex;
   justify-content: center;
 }
 .bigboard-container:after {
   display: block;
-  padding-bottom: 100%;
 }
